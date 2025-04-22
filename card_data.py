@@ -1,0 +1,15 @@
+from dataclasses import dataclass, field
+from typing import List, Dict, Any
+
+@dataclass
+class CardData:
+    name: str
+    description: str
+    cost: int
+    effects: List[Dict[str, Any]] = field(default_factory=list)
+
+    def __post_init__(self):
+        # Validate effects (optional, but good practice)
+        for effect in self.effects:
+            if "type" not in effect:
+                raise ValueError("Effect must have a 'type' field")

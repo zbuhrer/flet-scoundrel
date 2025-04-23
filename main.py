@@ -4,6 +4,30 @@ from card_data import CardData
 from card_logic import apply_card_effect
 from action_queue import ActionQueue
 
+class Card(ft.Container):
+    def __init__(self, card_data: CardData, on_click):
+        super().__init__()
+        self.card_data = card_data
+        self.width = 150
+        self.height = 200
+        self.on_click = on_click
+        self.bgcolor = ft.colors.WHITE
+        self.border_radius = 10
+        self.content = self.build_content()
+        self.cursor = ft.MouseCursor.GRAB
+
+    def build_content(self):
+        return ft.Column(
+            [
+                ft.Text(self.card_data.rank, size=20, weight=ft.FontWeight.BOLD),
+                ft.Text(self.card_data.suit, size=14),
+                ft.Text(f"Cost: {self.card_data.cost}", size=12),
+            ],
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        )
+
+
 def main(page: ft.Page):
     page.title = "Scoundrel: Ace's Wild"
 
@@ -133,8 +157,8 @@ def main(page: ft.Page):
         card_controls = []
         for card in game_state.hand:
             card_controls.append(
-                ft.ElevatedButton(
-                    text=f"{card.rank} of {card.suit} ({card.cost})",
+                Card(
+                    card_data=card,
                     on_click=lambda e, card=card: handle_card_click(card),
                 )
             )
@@ -149,7 +173,7 @@ def main(page: ft.Page):
         # Update page content
         page.clean()  # Clear existing controls
         page.add(
-            ft.Row(controls=card_controls),
+            ft.Row(controls=card_controls, scroll=ft.ScrollMode.AUTO),
             game_state_info,
             ft.Row(controls=[undo_button, redo_button])
         )

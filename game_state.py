@@ -8,6 +8,7 @@ class GameState:
         self.health = 20
         self.power = 0
         self.enemies = []  # We can define an Enemy class later
+        self.equipped_class = None  # Track equipped class (CardData)
 
     def shuffle_deck(self):
         random.shuffle(self.deck)
@@ -39,3 +40,11 @@ class GameState:
 
     def apply_healing(self, amount):
         self.health = min(self.health + amount, 20) # Assuming max health is 20
+
+    def equip_class(self, card):
+        """Equips a red face card, granting a bonus."""
+        if card.suit in ("Hearts", "Diamonds") and card.rank in ("Jack", "Queen", "King"):
+            self.equipped_class = card
+            print(f"Equipped {card.name} as class.")
+        else:
+            print("Cannot equip this card as a class.")

@@ -1,11 +1,13 @@
 from dataclasses import dataclass, field
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 @dataclass
 class CardData:
     name: str
     description: str
     cost: int
+    suit: Optional[str] = None  # "Diamonds", "Hearts", "Spades", "Clubs"
+    rank: Optional[str] = None  # "2", "3", ..., "K", "A"
     effects: List[Dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self):

@@ -1,34 +1,32 @@
 def apply_card_effect(card, game_state):
     """Applies the effects of a card to the game state."""
+    print(f"Applying effect for {card.name}")
 
-    if card.suit == "Diamonds":
-        damage = card.rank
-        if game_state.equipped_class == "Diamonds":
-            damage += game_state.class_bonus
-        if game_state.enemies:
-            game_state.enemies[0].health -= damage
-            print(f"Dealt {damage} damage to enemy with {card.name}!")
-        else:
-            print("No enemies to attack!")
-
-    elif card.suit == "Hearts":
-        heal_amount = card.rank
-        if game_state.equipped_class == "Hearts":
-            heal_amount += game_state.class_bonus
-        game_state.apply_healing(heal_amount)
-        print(f"Healed {heal_amount} health with {card.name}!")
-
-    elif card.suit == "Spades" or card.suit == "Clubs":
-        # Spades and Clubs represent enemies.  For simplicity, we won't "play" them,
-        # but they could trigger enemy actions in a more complex system.
-        print(f"Encountered enemy: {card.name} (Suit: {card.suit}, Rank: {card.rank})")
-        #In a more complex system, this is where you'd trigger the enemy's attack
-
-    # Card Abilities
     for effect in card.effects:
         effect_type = effect["type"]
 
-        if effect_type == "draw":
+        if effect_type == "damage":
+            damage = effect["value"]
+            if game_state.equipped_class == "Diamonds":
+                damage += game_state.class_bonus
+            if game_state.enemies:
+                game_state.enemies[0].health -= damage
+                print(f"Dealt {damage} damage to enemy with {card.name}!")
+            else:
+                print("No enemies to attack!")
+
+        elif effect_type == "heal":
+            heal_amount = effect["value"]
+            if game_state.equipped_class == "Hearts":
+                heal_amount += game_state.class_bonus
+            game_state.apply_healing(heal_amount)
+            print(f"Healed {heal_amount} health with {card.name}!")
+
+        elif effect_type == "summon_enemy":
+            #This feature isn't implemented yet.
+            print(f"Summoning enemy: {card.name} is not implemented yet.")
+
+        elif effect_type == "draw":
             value = effect["value"]
             for _ in range(value):
                 game_state.draw_card()
@@ -37,7 +35,7 @@ def apply_card_effect(card, game_state):
         elif effect_type == "equip":
             #Equip a red face card as a character class, granting a bonus.
             suit = card.suit
-            if suit in ("Hearts", "Diamonds") and card.rank in (11, 12, 13): #J, Q, K
+            if suit in ("Hearts", "Diamonds") and card.rank in ('Jack', 'Queen', 'King'): #J, Q, K
                 game_state.equip_class(card)
             else:
                 print(f"Cannot equip {card.name} as a class.")

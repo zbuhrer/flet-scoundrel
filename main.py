@@ -14,7 +14,7 @@ class Card(ft.Container):
         self.bgcolor = ft.colors.WHITE
         self.border_radius = 10
         self.content = self.build_content()
-        self.cursor = ft.MouseCursor.GRAB
+        self.cursor = ft.MouseCursor.BASIC
 
     def build_content(self):
         return ft.Column(
@@ -43,34 +43,92 @@ def main(page: ft.Page):
         for suit in suits:
             for rank in ranks:
                 # Determine card value and effects based on suit and rank
-                if rank.isdigit():
-                    value = int(rank)
-                elif rank == "Jack":
-                    value = 11
-                elif rank == "Queen":
-                    value = 12
-                elif rank == "King":
-                    value = 13
-                else:  # Ace - Value will be determined at play time.
-                    value = 0  # Placeholder
-
-                card_name = f"{rank} of {suit}"
-                card_description = f"{rank} of {suit}"  # More descriptive descriptions would be good.
-                cost = 1 #Temporary Value
-
-                effects = []
-                if suit == "Diamonds":
-                    effects.append({"type": "damage", "value": value, "target": "enemy"})
-                elif suit == "Hearts":
-                    effects.append({"type": "heal", "value": value, "target": "player"})
-                elif suit == "Spades" or suit == "Clubs":
-                    # These cards represent enemies; however, the enemy creation is outside the scope of card creation
-                    # So we will add a type for summon enemy, and let the card logic handle it.
-                    effects.append({"type": "summon_enemy", "health": value})
-
-                card_data = CardData(name=card_name, description=card_description, cost=cost, effects=effects, suit=suit, rank=rank)
+                card_data = create_card(suit, rank)
                 deck.append(card_data)
         return deck
+
+    def create_card(suit, rank):
+        value = get_card_value(rank)
+
+        card_name = f"{rank} of {suit}"
+        card_description = f"{rank} of {suit}"  # More descriptive descriptions would be good.
+        cost = 1 #Temporary Value
+
+        effects = get_card_effects(suit, value)
+
+        card_data = CardData(name=card_name, description=card_description, cost=cost, effects=effects, suit=suit, rank=rank)
+        return card_data
+
+    def get_card_value(rank):
+        if rank.isdigit():
+            return int(rank)
+        elif rank == "Jack":
+            return 11
+        elif rank == "Queen":
+            return 12
+        elif rank == "King":
+            return 13
+        else:  # Ace - Value will be determined at play time.
+            return 0  # Placeholder
+
+    def get_card_effects(suit, value):
+        effects = []
+        if suit == "Diamonds":
+            effects.append({"type": "damage", "value": value, "target": "enemy"})
+        elif suit == "Hearts":
+            effects.append({"type": "heal", "value": value, "target": "player"})
+        elif suit == "Spades" or suit == "Clubs":
+            # These cards represent enemies; however, the enemy creation is outside the scope of card creation
+            # So we will add a type for summon enemy, and let the card logic handle it.
+            effects.append({"type": "summon_enemy", "health": value})
+        return effects
+
+    def handle_ace_selection(card: CardData):
+        def close_dlg(e):
+            ace_value = ace_value_field.value
+            if ace_value is None:
+                page.show_snack_bar(
+                    ft.SnackBar(
+                        ft.Text("Please enter a value for Ace."),
+                        open=True,
+                    )
+                )
+                return  # Don't close the dialog.
+            try:
+                ace_value = int(ace_value)
+                if ace_value != 1 and ace_value != 14:
+                    page.show_snack_bar(
+                        ft.SnackBar(
+                            ft.Text("Invalid Ace value. Please enter 1 or 14."),
+                            open=True,
+                        )
+                    )
+                    return # Don't close the dialog.
+            except ValueError:
+                page.show_snack_bar(
+                    ft.SnackBar(
+                        ft.Text("Invalid Ace value. Please enter a number."),
+                        open=True,
+                    )
+                )
+                return #Don't close the dialog.
+            page.close_dialog()
+            # Continue processing the card with the selected ace_value
+            process_card(card, ace_value)
+
+        ace_value_field = ft.TextField(label="Choose Ace value (1 or 14):", keyboard_type=ft.KeyboardType.NUMBER)
+
+        page.add(
+            ft.AlertDialog(
+                modal=True,
+                title=ft.Text("Choose Ace Value"),
+                content=ace_value_field,
+                actions=[
+                    ft.TextButton("Confirm", on_click=close_dlg),
+                ],
+            )
+        )
+        page.update()
 
     game_state.deck = create_deck()
     game_state.shuffle_deck()
@@ -85,52 +143,7 @@ def main(page: ft.Page):
 
         # Handle Ace value selection
         if card.rank == "Ace":
-            def close_dlg(e):
-                ace_value = ace_value_field.value
-                if ace_value is None:
-                    page.show_snack_bar(
-                        ft.SnackBar(
-                            ft.Text("Please enter a value for Ace."),
-                            open=True,
-                        )
-                    )
-                    return  # Don't close the dialog.
-                try:
-                    ace_value = int(ace_value)
-                    if ace_value != 1 and ace_value != 14:
-                        page.show_snack_bar(
-                            ft.SnackBar(
-                                ft.Text("Invalid Ace value. Please enter 1 or 14."),
-                                open=True,
-                            )
-                        )
-                        return # Don't close the dialog.
-                except ValueError:
-                    page.show_snack_bar(
-                        ft.SnackBar(
-                            ft.Text("Invalid Ace value. Please enter a number."),
-                            open=True,
-                        )
-                    )
-                    return #Don't close the dialog.
-                page.close_dialog()
-                # Continue processing the card with the selected ace_value
-                process_card(card, ace_value)
-
-            ace_value_field = ft.TextField(label="Choose Ace value (1 or 14):", keyboard_type=ft.KeyboardType.NUMBER)
-
-            page.add(
-                ft.AlertDialog(
-                    modal=True,
-                    title=ft.Text("Choose Ace Value"),
-                    content=ace_value_field,
-                    actions=[
-                        ft.TextButton("Confirm", on_click=close_dlg),
-                    ],
-                )
-            )
-            page.update()
-
+            handle_ace_selection(card)
 
         else:
             process_card(card)

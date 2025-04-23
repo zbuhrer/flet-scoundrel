@@ -11,7 +11,7 @@ class Card(ft.Container):
         self.width = 150
         self.height = 200
         self.on_click = on_click
-        self.bgcolor = ft.colors.WHITE
+        self.bgcolor = ft.colors.DEEP_ORANGE_900
         self.border_radius = 10
         self.content = self.build_content()
         self.cursor = ft.MouseCursor.BASIC
@@ -21,7 +21,6 @@ class Card(ft.Container):
             [
                 ft.Text(self.card_data.rank, size=20, weight=ft.FontWeight.BOLD),
                 ft.Text(self.card_data.suit, size=14),
-                ft.Text(f"Cost: {self.card_data.cost}", size=12),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -56,7 +55,7 @@ def main(page: ft.Page):
 
         effects = get_card_effects(suit, value)
 
-        card_data = CardData(name=card_name, description=card_description, cost=cost, effects=effects, suit=suit, rank=rank)
+        card_data = CardData(name=card_name, description=card_description, effects=effects, suit=suit, rank=rank)
         return card_data
 
     def get_card_value(rank):
@@ -230,10 +229,10 @@ def main(page: ft.Page):
         game_state_info = ft.Text(f"Health: {game_state.health}, Deck: {len(game_state.deck)}, Discard: {len(game_state.discard_pile)}")
 
         # Display equipped weapon
-        equipped_weapon_card = Card(card_data=game_state.equipped_weapon, on_click=None) if game_state.equipped_weapon else ft.Container(content=ft.Text("No Weapon Equipped"), width=150, height=200, bgcolor=ft.colors.GREY_200, alignment=ft.alignment.center)
+        equipped_weapon_card = Card(card_data=game_state.equipped_weapon, on_click=None) if game_state.equipped_weapon else ft.Container(content=ft.Text("No Weapon Equipped"), width=150, height=200, bgcolor=ft.colors.DEEP_PURPLE_800, alignment=ft.alignment.center)
 
         # Display Enemy
-        enemy_card = Card(card_data=game_state.enemies[-1], on_click=None) if game_state.enemies else ft.Container(content=ft.Text("No Enemy"), width=150, height=200, bgcolor=ft.colors.GREY_200, alignment=ft.alignment.center)
+        enemy_card = Card(card_data=game_state.enemies[-1], on_click=None) if game_state.enemies else ft.Container(content=ft.Text("No Enemy"), width=150, height=200, bgcolor=ft.colors.DEEP_PURPLE_800, alignment=ft.alignment.center)
 
         # Display Discard Pile
         discard_pile_cards = []

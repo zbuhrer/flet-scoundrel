@@ -9,6 +9,7 @@ class CardData:
     suit: Optional[str] = None  # "Diamonds", "Hearts", "Spades", "Clubs"
     rank: Optional[str] = None  # "2", "3", ..., "K", "A"
     effects: List[Dict[str, Any]] = field(default_factory=list)
+    health: Optional[int] = None
 
     def __post_init__(self):
         # Validate effects (optional, but good practice)

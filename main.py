@@ -141,10 +141,23 @@ def main(page: ft.Page):
         """Handles the event when a card is clicked."""
         print(f"Card clicked: {card.name}")
 
-        # Handle Ace value selection
-        if card.rank == "Ace":
-            handle_ace_selection(card)
-
+        if card.suit in ("Spades", "Clubs"):
+            # Encounter Enemy
+            card.health = get_card_value(card.rank) #Set Enemy Health
+            game_state.enemies.append(card)
+            game_state.hand.remove(card)
+            update_ui()
+        elif card.suit == "Diamonds":
+            # Equip Weapon
+            game_state.equipped_weapon = card
+            game_state.hand.remove(card)
+            update_ui()
+        elif card.suit == "Hearts":
+            # Heal Player
+            heal_amount = get_card_value(card.rank)
+            game_state.apply_healing(heal_amount)
+            game_state.hand.remove(card)
+            update_ui()
         else:
             process_card(card)
 
@@ -168,8 +181,38 @@ def main(page: ft.Page):
     def perform_enemy_attacks(game_state):
         """Make enemies attack the player."""
         for enemy in game_state.enemies:
-            game_state.apply_damage(enemy.attack)
-            print(f"Enemy {enemy.name} attacked for {enemy.attack} damage!")
+            #Get the value of the card:
+            enemy_value = get_card_value(enemy.rank)
+            game_state.apply_damage(enemy_value)
+            print(f"Enemy {enemy.name} attacked for {enemy_value} damage!")
+
+    def fight(e):
+        """Handles the combat logic."""
+        if game_state.enemies:
+            enemy = game_state.enemies[0]  # For now, fight the first enemy
+            if game_state.equipped_weapon:
+                weapon_damage = get_card_value(game_state.equipped_weapon.rank)
+                damage_to_enemy = weapon_damage
+            else:
+                damage_to_enemy = 0  # Bare-handed
+
+            # Apply damage to enemy
+            #enemy_value = int(enemy.rank) if enemy.rank.isdigit() else {'Jack':11,'Queen':12,'King':13,'Ace':14}[enemy.rank]
+            enemy.health -= damage_to_enemy
+            print(f"Dealt {damage_to_enemy} damage to {enemy.name}!")
+
+            if enemy.health <= 0:
+                print(f"Defeated {enemy.name}!")
+                game_state.enemies.remove(enemy)
+                #Award the player
+            else:
+                #game_state.apply_damage(enemy_value)
+                #print(f"Enemy {enemy.name} hit you for {enemy_value} damage!")
+                pass
+
+            update_ui()
+        else:
+            print("No enemies to fight!")
 
     def update_ui():
         """Updates the Flet UI to reflect the current GameState."""
@@ -194,17 +237,23 @@ def main(page: ft.Page):
         else:
             enemy_controls.append(ft.Text("No enemies present."))
 
-        # Display undo/redo buttons
-        undo_button = ft.ElevatedButton("Undo", on_click=undo)
-        redo_button = ft.ElevatedButton("Redo", on_click=redo)
+         # Display equipped weapon
+        equipped_weapon_text = ft.Text(f"Weapon: {game_state.equipped_weapon.name}" if game_state.equipped_weapon else "No weapon equipped")
+
+        # Fight Button
+        fight_button = ft.ElevatedButton("Fight", on_click=fight)
+
+        #Quit button
+        quit_button = ft.ElevatedButton("Quit", on_click=lambda _: page.window_destroy())
 
         # Update page content
         page.clean()  # Clear existing controls
         page.add(
             ft.Row(controls=card_controls, scroll=ft.ScrollMode.AUTO),
             game_state_info,
+            equipped_weapon_text,
             ft.Column(controls=enemy_controls),  # Display enemies in a column
-            ft.Row(controls=[undo_button, redo_button])
+            ft.Row(controls=[fight_button, quit_button]),
         )
 
     def undo(e):

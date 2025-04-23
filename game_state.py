@@ -1,4 +1,6 @@
 import random
+from typing import Optional
+from card_data import CardData
 
 class GameState:
     def __init__(self):
@@ -7,8 +9,9 @@ class GameState:
         self.discard_pile = []
         self.health = 20
         self.power = 0
-        self.enemies = []  # List of Enemy instances
-        self.equipped_class = None  # Track equipped class (CardData)
+        self.enemies = []  # List of CardData instances (enemies)
+        self.equipped_class: Optional[CardData] = None  # Track equipped class (CardData)
+        self.equipped_weapon: Optional[CardData] = None #Track equipped weapon (CardData)
 
     def shuffle_deck(self):
         random.shuffle(self.deck)
@@ -37,6 +40,8 @@ class GameState:
 
     def apply_damage(self, amount):
         self.health -= amount
+        if self.health < 0:
+            self.health = 0
 
     def apply_healing(self, amount):
         self.health = min(self.health + amount, 20) # Assuming max health is 20

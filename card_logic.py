@@ -1,3 +1,5 @@
+from card_data import Enemy
+
 def apply_card_effect(card, game_state):
     """Applies the effects of a card to the game state."""
     print(f"Applying effect for {card.name}")
@@ -23,8 +25,10 @@ def apply_card_effect(card, game_state):
             print(f"Healed {heal_amount} health with {card.name}!")
 
         elif effect_type == "summon_enemy":
-            #This feature isn't implemented yet.
-            print(f"Summoning enemy: {card.name} is not implemented yet.")
+            health = effect["health"]
+            enemy = Enemy(health=health, name=card.name)  # Create an Enemy instance
+            game_state.enemies.append(enemy)  # Add the enemy to the game state
+            print(f"Summoned enemy: {card.name} with {health} health.")
 
         elif effect_type == "draw":
             value = effect["value"]

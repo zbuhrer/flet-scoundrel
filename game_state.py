@@ -7,7 +7,7 @@ class GameState:
         self.discard_pile = []
         self.health = 20
         self.power = 0
-        self.enemies = []  # We can define an Enemy class later
+        self.enemies = []  # List of Enemy instances
         self.equipped_class = None  # Track equipped class (CardData)
 
     def shuffle_deck(self):

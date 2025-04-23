@@ -156,13 +156,20 @@ def main(page: ft.Page):
         # Apply the card effect
         apply_card_effect(card, game_state)
 
+        # Perform enemy attacks
+        perform_enemy_attacks(game_state)
+
         # Discard the card
         game_state.discard_card(card)
 
         # Update UI
         update_ui()
 
-
+    def perform_enemy_attacks(game_state):
+        """Make enemies attack the player."""
+        for enemy in game_state.enemies:
+            game_state.apply_damage(enemy.attack)
+            print(f"Enemy {enemy.name} attacked for {enemy.attack} damage!")
 
     def update_ui():
         """Updates the Flet UI to reflect the current GameState."""
@@ -179,6 +186,14 @@ def main(page: ft.Page):
         # Display game state information
         game_state_info = ft.Text(f"Health: {game_state.health}, Deck: {len(game_state.deck)}, Discard: {len(game_state.discard_pile)}")
 
+        # Display enemies
+        enemy_controls = []
+        if game_state.enemies:
+            for enemy in game_state.enemies:
+                enemy_controls.append(ft.Text(f"Enemy: {enemy.name} ({enemy.health} HP)"))
+        else:
+            enemy_controls.append(ft.Text("No enemies present."))
+
         # Display undo/redo buttons
         undo_button = ft.ElevatedButton("Undo", on_click=undo)
         redo_button = ft.ElevatedButton("Redo", on_click=redo)
@@ -188,6 +203,7 @@ def main(page: ft.Page):
         page.add(
             ft.Row(controls=card_controls, scroll=ft.ScrollMode.AUTO),
             game_state_info,
+            ft.Column(controls=enemy_controls),  # Display enemies in a column
             ft.Row(controls=[undo_button, redo_button])
         )
 

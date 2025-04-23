@@ -15,3 +15,9 @@ class CardData:
         for effect in self.effects:
             if "type" not in effect:
                 raise ValueError("Effect must have a 'type' field")
+
+@dataclass
+class Enemy:
+    health: int
+    attack: int = 1  # Default attack value
+    name: str = "Generic Enemy"

@@ -207,7 +207,7 @@ def main(page: ft.Page):
                 #Award the player
             else:
                 #game_state.apply_damage(enemy_value)
-                #print(f"Enemy {enemy.name} hit you for {enemy_value} damage!")
+                #print(f"Enemy {enemy.name} hit you for {enemy.value} damage!")
                 pass
 
             update_ui()
@@ -229,19 +229,37 @@ def main(page: ft.Page):
         # Display game state information
         game_state_info = ft.Text(f"Health: {game_state.health}, Deck: {len(game_state.deck)}, Discard: {len(game_state.discard_pile)}")
 
-        # Display enemies
-        enemy_controls = []
-        if game_state.enemies:
-            for enemy in game_state.enemies:
-                enemy_controls.append(ft.Text(f"Enemy: {enemy.name} ({enemy.health} HP)"))
-        else:
-            enemy_controls.append(ft.Text("No enemies present."))
+        # Display equipped weapon
+        equipped_weapon_card = Card(card_data=game_state.equipped_weapon, on_click=None) if game_state.equipped_weapon else ft.Container(content=ft.Text("No Weapon Equipped"), width=150, height=200, bgcolor=ft.colors.GREY_200, alignment=ft.alignment.center)
 
-         # Display equipped weapon
-        equipped_weapon_text = ft.Text(f"Weapon: {game_state.equipped_weapon.name}" if game_state.equipped_weapon else "No weapon equipped")
+        # Display Enemy
+        enemy_card = Card(card_data=game_state.enemies[-1], on_click=None) if game_state.enemies else ft.Container(content=ft.Text("No Enemy"), width=150, height=200, bgcolor=ft.colors.GREY_200, alignment=ft.alignment.center)
+
+        # Display Discard Pile
+        discard_pile_cards = []
+        num_discard_cards_to_show = 5  # Show only the top 5 discarded cards
+        discard_count = len(game_state.discard_pile)
+
+        for i in range(max(0, discard_count - num_discard_cards_to_show), discard_count):
+            card = game_state.discard_pile[i]
+            discard_pile_cards.append(
+                Card(card_data=card, on_click=None)
+            )
+
+        discard_pile_stack = ft.Stack(
+            width=150 + (num_discard_cards_to_show - 1) * 5,  # Adjust width based on number of cards
+            height=200 + (num_discard_cards_to_show - 1) * 5,  # Adjust height accordingly
+            controls=discard_pile_cards,
+        )
 
         # Fight Button
         fight_button = ft.ElevatedButton("Fight", on_click=fight)
+
+        #Undo button
+        undo_button = ft.ElevatedButton("Undo", on_click=undo)
+
+        #Redo button
+        redo_button = ft.ElevatedButton("Redo", on_click=redo)
 
         #Quit button
         quit_button = ft.ElevatedButton("Quit", on_click=lambda _: page.window_destroy())
@@ -251,9 +269,8 @@ def main(page: ft.Page):
         page.add(
             ft.Row(controls=card_controls, scroll=ft.ScrollMode.AUTO),
             game_state_info,
-            equipped_weapon_text,
-            ft.Column(controls=enemy_controls),  # Display enemies in a column
-            ft.Row(controls=[fight_button, quit_button]),
+            ft.Row(controls=[equipped_weapon_card, enemy_card, discard_pile_stack]),  # Display weapon, enemy, and discard
+            ft.Row(controls=[fight_button, undo_button, redo_button, quit_button]),
         )
 
     def undo(e):

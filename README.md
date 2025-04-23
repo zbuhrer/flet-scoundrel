@@ -41,7 +41,7 @@ The game starts with the player being dealt a hand of cards. Each card has a sui
 *   **Aces** prompt the player to choose a value of 1 or 14.
 *   Use the **Undo** and **Redo** buttons to revert or replay actions.
 
-![Game Screenshot](docs/2025-04-23.png)
+![Game Screenshot](docs/2025-04-23b.png)
 
 ## File Structure
 

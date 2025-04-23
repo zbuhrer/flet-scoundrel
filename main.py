@@ -29,7 +29,7 @@ class Card(ft.Container):
 
 
 def main(page: ft.Page):
-    page.title = "Scoundrel: Ace's Wild"
+    page.title = "Flet Scoundrel"
 
     # Initialize Game State
     game_state = GameState()
